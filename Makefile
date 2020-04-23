@@ -2,9 +2,9 @@ GPU=0
 CUDNN=0
 CUDNN_HALF=0
 OPENCV=0
-AVX=0
-OPENMP=0
-LIBSO=0
+AVX=1
+OPENMP=1
+LIBSO=1
 ZED_CAMERA=0 # ZED SDK 3.0 and above
 ZED_CAMERA_v2_8=0 # ZED SDK 2.X
 
@@ -48,6 +48,7 @@ OS := $(shell uname)
 VPATH=./src/
 EXEC=darknet
 OBJDIR=./obj/
+INSTALL_PATH=/usr/local/darknet
 
 ifeq ($(LIBSO), 1)
 LIBNAMESO=libdarknet.so
@@ -147,6 +148,13 @@ all: $(OBJDIR) backup results setchmod $(EXEC) $(LIBNAMESO) $(APPNAMESO)
 
 ifeq ($(LIBSO), 1)
 CFLAGS+= -fPIC
+
+install: all
+	mkdir $(INSTALL_PATH)
+	cp $(LIBNAMESO) $(INSTALL_PATH)
+
+uninstall: clean
+	rm -rf $(INSTALL_PATH)
 
 $(LIBNAMESO): $(OBJDIR) $(OBJS) include/yolo_v2_class.hpp src/yolo_v2_class.cpp
 	$(CPP) -shared -std=c++11 -fvisibility=hidden -DLIB_EXPORTS $(COMMON) $(CFLAGS) $(OBJS) src/yolo_v2_class.cpp -o $@ $(LDFLAGS)
