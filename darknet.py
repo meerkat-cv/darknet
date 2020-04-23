@@ -201,8 +201,18 @@ class Darknet():
                 if dets[j].prob[i] > 0:
                     b = dets[j].bbox
                     nameTag = self.metaMain.names[i]
-                    res.append((nameTag, dets[j].prob[i], (b.x, b.y, b.w, b.h)))
-        res = sorted(res, key=lambda x: -x[1])
+                    left, right = b.x-b.w/2, b.x+b.w/2 
+                    top, bottom = b.y-b.h/2, b.y+b.h/2 
+                    res.append({
+                        'label': nameTag.decode('utf-8'),
+                        'confidence': float(dets[j].prob[i]),
+                        'box': {
+                            'top_left': {'x': left, 'y': top},
+                            'bottom_right': {'x': right, 'y': bottom},
+                        }})
+
+
+        res = sorted(res, key=lambda x: -x['confidence'])
         self.free_detections(dets, num)
         return res
 
