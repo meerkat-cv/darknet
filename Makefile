@@ -48,10 +48,14 @@ OS := $(shell uname)
 VPATH=./src/
 EXEC=darknet
 OBJDIR=./obj/
-INSTALL_PATH=/usr/local/darknet
+INSTALL_PATH=/usr/local/darknet/
 
 ifeq ($(LIBSO), 1)
-LIBNAMESO=libdarknet.so
+ifeq ($(GPU), 1)
+LIBNAMESO=libdarknet_gpu.so
+else
+LIBNAMESO=libdarknet_cpu.so
+endif
 APPNAMESO=uselib
 endif
 
@@ -149,8 +153,7 @@ all: $(OBJDIR) backup results setchmod $(EXEC) $(LIBNAMESO) $(APPNAMESO)
 ifeq ($(LIBSO), 1)
 CFLAGS+= -fPIC
 
-install: all
-	mkdir $(INSTALL_PATH)
+install: all $(INSTALL_PATH)
 	cp $(LIBNAMESO) $(INSTALL_PATH)
 
 uninstall: clean
@@ -177,6 +180,8 @@ $(OBJDIR)%.o: %.cu $(DEPS)
 
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
+$(INSTALL_PATH):
+	mkdir -p $(INSTALL_PATH)
 backup:
 	mkdir -p backup
 results:
